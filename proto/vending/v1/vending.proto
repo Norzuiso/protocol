@@ -1,0 +1,32 @@
+syntax = "proto3";
+package vending.v1;
+option go_package = "github.com/Norzuiso/protocol/gen/go/vending/v1;vendingv1";
+
+message Product{
+    int32 id = 1;
+    string name = 2;
+    int32 price_cents = 3;
+    int32 stock = 4;
+}
+
+message ListProductsRequest {
+    // Empty now but created to follow proto standards 
+    // and because in a future we can add filters as requests 
+}
+
+message ListProductsResponse {
+    repeated Product items = 1; 
+}
+
+message DispenseProductRequest {
+    int32 product_id = 1;
+}
+
+message DispenseProductResponse {
+    int32 dispensed_product_id = 1;
+}
+
+service VendingMachineService {
+    rpc ListProducts(ListProductsRequest) returns (ListProductsResponse);
+    rpc DispenseProduct(DispenseProductRequest) returns (DispenseProductResponse);
+}

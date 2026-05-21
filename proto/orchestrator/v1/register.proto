@@ -1,0 +1,17 @@
+syntax = "proto3";
+package orchestrator.register.v1;
+option go_package = "github.com/Norzuiso/protocol/gen/go/orchestrator/register/v1;registerv1";
+
+message RegistryRequest{
+    string name = 1;
+    string endpoint = 2;
+    string category = 3;
+}
+
+message RegistryResponse{
+    string response_message = 1;
+}
+
+service RegistryService{
+    rpc Register(RegistryRequest) returns (RegistryResponse);
+}
