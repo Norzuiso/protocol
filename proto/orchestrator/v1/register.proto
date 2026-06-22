@@ -12,6 +12,37 @@ message RegistryResponse{
     string response_message = 1;
 }
 
+message RegisterConnectionRequest{
+    string origin_endpoint=1;
+    repeated string destiny_endpoints=2;
+}
+
+message RegisterConnectionResponse{
+    string response_message=1;
+}
+
+message ConnectionRequest{
+    string endpoint=1;
+}
+message ConnectionResponse{
+    repeated string endpoints=1;
+}
+
 service RegistryService{
     rpc Register(RegistryRequest) returns (RegistryResponse);
+    rpc RegisterConnections(RegisterConnectionRequest) returns (RegisterConnectionResponse);
+    rpc ListConnections(ConnectionRequest) returns (ConnectionResponse);
+}
+
+message Point {
+  int32 latitude = 1;
+  int32 longitude = 2;
+}
+message EventNote{
+    Point location = 1;
+    string msg = 2;
+}
+
+service EventService{
+    rpc EventChat(stream EventNote) returns (stream EventNote);
 }
