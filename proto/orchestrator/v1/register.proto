@@ -2,47 +2,26 @@ syntax = "proto3";
 package orchestrator.register.v1;
 option go_package = "github.com/Norzuiso/protocol/gen/go/orchestrator/register/v1;registerv1";
 
-message RegistryRequest{
-    string name = 1;
-    string endpoint = 2;
-    string category = 3;
+message User {
+    string id = 1;
+    string name = 2;
 }
 
-message RegistryResponse{
-    string response_message = 1;
+message Message {
+    string sender_id = 1;
+    string receiver_id = 2;
+    string content = 3;
 }
 
-message RegisterConnectionRequest{
-    string origin_endpoint=1;
-    repeated string destiny_endpoints=2;
+message Connect {
+    User user = 1;
+    repeated string user_connection_ids = 2;
+    bool active = 3;
 }
 
-message RegisterConnectionResponse{
-    string response_message=1;
-}
+message Close {}
 
-message ConnectionRequest{
-    string endpoint=1;
-}
-message ConnectionResponse{
-    repeated string endpoints=1;
-}
-
-service RegistryService{
-    rpc Register(RegistryRequest) returns (RegistryResponse);
-    rpc RegisterConnections(RegisterConnectionRequest) returns (RegisterConnectionResponse);
-    rpc ListConnections(ConnectionRequest) returns (ConnectionResponse);
-}
-
-message Point {
-  int32 latitude = 1;
-  int32 longitude = 2;
-}
-message EventNote{
-    Point location = 1;
-    string msg = 2;
-}
-
-service EventService{
-    rpc EventChat(stream EventNote) returns (stream EventNote);
+service Broadcast{
+    rpc CreateStream(Connect) returns (stream Message);
+    rpc BroadcastMessage(Message) returns (Close)
 }
