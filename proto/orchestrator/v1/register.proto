@@ -9,19 +9,24 @@ message User {
 
 message Message {
     string sender_id = 1;
-    string receiver_id = 2;
     string content = 3;
 }
 
 message Connect {
     User user = 1;
     repeated string user_connection_ids = 2;
-    bool active = 3;
 }
+
+message ConnectResponse {
+    string response_msg = 1;
+}
+
 
 message Close {}
 
 service Broadcast{
     rpc CreateStream(Connect) returns (stream Message);
     rpc BroadcastMessage(Message) returns (Close);
+    rpc RegisterConnection(Connect) returns (ConnectResponse);
+    rpc PairToPairMessage(stream Message) returns (stream Message);
 }
