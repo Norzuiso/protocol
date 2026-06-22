@@ -19,274 +19,144 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	RegistryService_Register_FullMethodName            = "/orchestrator.register.v1.RegistryService/Register"
-	RegistryService_RegisterConnections_FullMethodName = "/orchestrator.register.v1.RegistryService/RegisterConnections"
-	RegistryService_ListConnections_FullMethodName     = "/orchestrator.register.v1.RegistryService/ListConnections"
+	Broadcast_CreateStream_FullMethodName     = "/orchestrator.register.v1.Broadcast/CreateStream"
+	Broadcast_BroadcastMessage_FullMethodName = "/orchestrator.register.v1.Broadcast/BroadcastMessage"
 )
 
-// RegistryServiceClient is the client API for RegistryService service.
+// BroadcastClient is the client API for Broadcast service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type RegistryServiceClient interface {
-	Register(ctx context.Context, in *RegistryRequest, opts ...grpc.CallOption) (*RegistryResponse, error)
-	RegisterConnections(ctx context.Context, in *RegisterConnectionRequest, opts ...grpc.CallOption) (*RegisterConnectionResponse, error)
-	ListConnections(ctx context.Context, in *ConnectionRequest, opts ...grpc.CallOption) (*ConnectionResponse, error)
+type BroadcastClient interface {
+	CreateStream(ctx context.Context, in *Connect, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Message], error)
+	BroadcastMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Close, error)
 }
 
-type registryServiceClient struct {
+type broadcastClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewRegistryServiceClient(cc grpc.ClientConnInterface) RegistryServiceClient {
-	return &registryServiceClient{cc}
+func NewBroadcastClient(cc grpc.ClientConnInterface) BroadcastClient {
+	return &broadcastClient{cc}
 }
 
-func (c *registryServiceClient) Register(ctx context.Context, in *RegistryRequest, opts ...grpc.CallOption) (*RegistryResponse, error) {
+func (c *broadcastClient) CreateStream(ctx context.Context, in *Connect, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Message], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RegistryResponse)
-	err := c.cc.Invoke(ctx, RegistryService_Register_FullMethodName, in, out, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Broadcast_ServiceDesc.Streams[0], Broadcast_CreateStream_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
-}
-
-func (c *registryServiceClient) RegisterConnections(ctx context.Context, in *RegisterConnectionRequest, opts ...grpc.CallOption) (*RegisterConnectionResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RegisterConnectionResponse)
-	err := c.cc.Invoke(ctx, RegistryService_RegisterConnections_FullMethodName, in, out, cOpts...)
-	if err != nil {
+	x := &grpc.GenericClientStream[Connect, Message]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
-	return out, nil
-}
-
-func (c *registryServiceClient) ListConnections(ctx context.Context, in *ConnectionRequest, opts ...grpc.CallOption) (*ConnectionResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ConnectionResponse)
-	err := c.cc.Invoke(ctx, RegistryService_ListConnections_FullMethodName, in, out, cOpts...)
-	if err != nil {
+	if err := x.ClientStream.CloseSend(); err != nil {
 		return nil, err
 	}
-	return out, nil
-}
-
-// RegistryServiceServer is the server API for RegistryService service.
-// All implementations must embed UnimplementedRegistryServiceServer
-// for forward compatibility.
-type RegistryServiceServer interface {
-	Register(context.Context, *RegistryRequest) (*RegistryResponse, error)
-	RegisterConnections(context.Context, *RegisterConnectionRequest) (*RegisterConnectionResponse, error)
-	ListConnections(context.Context, *ConnectionRequest) (*ConnectionResponse, error)
-	mustEmbedUnimplementedRegistryServiceServer()
-}
-
-// UnimplementedRegistryServiceServer must be embedded to have
-// forward compatible implementations.
-//
-// NOTE: this should be embedded by value instead of pointer to avoid a nil
-// pointer dereference when methods are called.
-type UnimplementedRegistryServiceServer struct{}
-
-func (UnimplementedRegistryServiceServer) Register(context.Context, *RegistryRequest) (*RegistryResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Register not implemented")
-}
-func (UnimplementedRegistryServiceServer) RegisterConnections(context.Context, *RegisterConnectionRequest) (*RegisterConnectionResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method RegisterConnections not implemented")
-}
-func (UnimplementedRegistryServiceServer) ListConnections(context.Context, *ConnectionRequest) (*ConnectionResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListConnections not implemented")
-}
-func (UnimplementedRegistryServiceServer) mustEmbedUnimplementedRegistryServiceServer() {}
-func (UnimplementedRegistryServiceServer) testEmbeddedByValue()                         {}
-
-// UnsafeRegistryServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to RegistryServiceServer will
-// result in compilation errors.
-type UnsafeRegistryServiceServer interface {
-	mustEmbedUnimplementedRegistryServiceServer()
-}
-
-func RegisterRegistryServiceServer(s grpc.ServiceRegistrar, srv RegistryServiceServer) {
-	// If the following call panics, it indicates UnimplementedRegistryServiceServer was
-	// embedded by pointer and is nil.  This will cause panics if an
-	// unimplemented method is ever invoked, so we test this at initialization
-	// time to prevent it from happening at runtime later due to I/O.
-	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
-		t.testEmbeddedByValue()
-	}
-	s.RegisterService(&RegistryService_ServiceDesc, srv)
-}
-
-func _RegistryService_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RegistryRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RegistryServiceServer).Register(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RegistryService_Register_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RegistryServiceServer).Register(ctx, req.(*RegistryRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RegistryService_RegisterConnections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RegisterConnectionRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RegistryServiceServer).RegisterConnections(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RegistryService_RegisterConnections_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RegistryServiceServer).RegisterConnections(ctx, req.(*RegisterConnectionRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RegistryService_ListConnections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ConnectionRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RegistryServiceServer).ListConnections(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RegistryService_ListConnections_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RegistryServiceServer).ListConnections(ctx, req.(*ConnectionRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// RegistryService_ServiceDesc is the grpc.ServiceDesc for RegistryService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var RegistryService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "orchestrator.register.v1.RegistryService",
-	HandlerType: (*RegistryServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Register",
-			Handler:    _RegistryService_Register_Handler,
-		},
-		{
-			MethodName: "RegisterConnections",
-			Handler:    _RegistryService_RegisterConnections_Handler,
-		},
-		{
-			MethodName: "ListConnections",
-			Handler:    _RegistryService_ListConnections_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/orchestrator/v1/register.proto",
-}
-
-const (
-	EventService_EventChat_FullMethodName = "/orchestrator.register.v1.EventService/EventChat"
-)
-
-// EventServiceClient is the client API for EventService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type EventServiceClient interface {
-	EventChat(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[EventNote, EventNote], error)
-}
-
-type eventServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewEventServiceClient(cc grpc.ClientConnInterface) EventServiceClient {
-	return &eventServiceClient{cc}
-}
-
-func (c *eventServiceClient) EventChat(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[EventNote, EventNote], error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &EventService_ServiceDesc.Streams[0], EventService_EventChat_FullMethodName, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &grpc.GenericClientStream[EventNote, EventNote]{ClientStream: stream}
 	return x, nil
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type EventService_EventChatClient = grpc.BidiStreamingClient[EventNote, EventNote]
+type Broadcast_CreateStreamClient = grpc.ServerStreamingClient[Message]
 
-// EventServiceServer is the server API for EventService service.
-// All implementations must embed UnimplementedEventServiceServer
-// for forward compatibility.
-type EventServiceServer interface {
-	EventChat(grpc.BidiStreamingServer[EventNote, EventNote]) error
-	mustEmbedUnimplementedEventServiceServer()
+func (c *broadcastClient) BroadcastMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Close, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Close)
+	err := c.cc.Invoke(ctx, Broadcast_BroadcastMessage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
-// UnimplementedEventServiceServer must be embedded to have
+// BroadcastServer is the server API for Broadcast service.
+// All implementations must embed UnimplementedBroadcastServer
+// for forward compatibility.
+type BroadcastServer interface {
+	CreateStream(*Connect, grpc.ServerStreamingServer[Message]) error
+	BroadcastMessage(context.Context, *Message) (*Close, error)
+	mustEmbedUnimplementedBroadcastServer()
+}
+
+// UnimplementedBroadcastServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedEventServiceServer struct{}
+type UnimplementedBroadcastServer struct{}
 
-func (UnimplementedEventServiceServer) EventChat(grpc.BidiStreamingServer[EventNote, EventNote]) error {
-	return status.Error(codes.Unimplemented, "method EventChat not implemented")
+func (UnimplementedBroadcastServer) CreateStream(*Connect, grpc.ServerStreamingServer[Message]) error {
+	return status.Error(codes.Unimplemented, "method CreateStream not implemented")
 }
-func (UnimplementedEventServiceServer) mustEmbedUnimplementedEventServiceServer() {}
-func (UnimplementedEventServiceServer) testEmbeddedByValue()                      {}
+func (UnimplementedBroadcastServer) BroadcastMessage(context.Context, *Message) (*Close, error) {
+	return nil, status.Error(codes.Unimplemented, "method BroadcastMessage not implemented")
+}
+func (UnimplementedBroadcastServer) mustEmbedUnimplementedBroadcastServer() {}
+func (UnimplementedBroadcastServer) testEmbeddedByValue()                   {}
 
-// UnsafeEventServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to EventServiceServer will
+// UnsafeBroadcastServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to BroadcastServer will
 // result in compilation errors.
-type UnsafeEventServiceServer interface {
-	mustEmbedUnimplementedEventServiceServer()
+type UnsafeBroadcastServer interface {
+	mustEmbedUnimplementedBroadcastServer()
 }
 
-func RegisterEventServiceServer(s grpc.ServiceRegistrar, srv EventServiceServer) {
-	// If the following call panics, it indicates UnimplementedEventServiceServer was
+func RegisterBroadcastServer(s grpc.ServiceRegistrar, srv BroadcastServer) {
+	// If the following call panics, it indicates UnimplementedBroadcastServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&EventService_ServiceDesc, srv)
+	s.RegisterService(&Broadcast_ServiceDesc, srv)
 }
 
-func _EventService_EventChat_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(EventServiceServer).EventChat(&grpc.GenericServerStream[EventNote, EventNote]{ServerStream: stream})
+func _Broadcast_CreateStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(Connect)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(BroadcastServer).CreateStream(m, &grpc.GenericServerStream[Connect, Message]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type EventService_EventChatServer = grpc.BidiStreamingServer[EventNote, EventNote]
+type Broadcast_CreateStreamServer = grpc.ServerStreamingServer[Message]
 
-// EventService_ServiceDesc is the grpc.ServiceDesc for EventService service.
+func _Broadcast_BroadcastMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Message)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BroadcastServer).BroadcastMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Broadcast_BroadcastMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BroadcastServer).BroadcastMessage(ctx, req.(*Message))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Broadcast_ServiceDesc is the grpc.ServiceDesc for Broadcast service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var EventService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "orchestrator.register.v1.EventService",
-	HandlerType: (*EventServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+var Broadcast_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "orchestrator.register.v1.Broadcast",
+	HandlerType: (*BroadcastServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "BroadcastMessage",
+			Handler:    _Broadcast_BroadcastMessage_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "EventChat",
-			Handler:       _EventService_EventChat_Handler,
+			StreamName:    "CreateStream",
+			Handler:       _Broadcast_CreateStream_Handler,
 			ServerStreams: true,
-			ClientStreams: true,
 		},
 	},
 	Metadata: "proto/orchestrator/v1/register.proto",
