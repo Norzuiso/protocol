@@ -76,7 +76,6 @@ func (x *User) GetName() string {
 type Message struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SenderId      string                 `protobuf:"bytes,1,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
-	ReceiverId    string                 `protobuf:"bytes,2,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty"`
 	Content       string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -119,13 +118,6 @@ func (x *Message) GetSenderId() string {
 	return ""
 }
 
-func (x *Message) GetReceiverId() string {
-	if x != nil {
-		return x.ReceiverId
-	}
-	return ""
-}
-
 func (x *Message) GetContent() string {
 	if x != nil {
 		return x.Content
@@ -137,7 +129,6 @@ type Connect struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	User              *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 	UserConnectionIds []string               `protobuf:"bytes,2,rep,name=user_connection_ids,json=userConnectionIds,proto3" json:"user_connection_ids,omitempty"`
-	Active            bool                   `protobuf:"varint,3,opt,name=active,proto3" json:"active,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -186,11 +177,48 @@ func (x *Connect) GetUserConnectionIds() []string {
 	return nil
 }
 
-func (x *Connect) GetActive() bool {
+type ConnectResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ResponseMsg   string                 `protobuf:"bytes,1,opt,name=response_msg,json=responseMsg,proto3" json:"response_msg,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConnectResponse) Reset() {
+	*x = ConnectResponse{}
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectResponse) ProtoMessage() {}
+
+func (x *ConnectResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[3]
 	if x != nil {
-		return x.Active
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
 	}
-	return false
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectResponse.ProtoReflect.Descriptor instead.
+func (*ConnectResponse) Descriptor() ([]byte, []int) {
+	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ConnectResponse) GetResponseMsg() string {
+	if x != nil {
+		return x.ResponseMsg
+	}
+	return ""
 }
 
 type Close struct {
@@ -201,7 +229,7 @@ type Close struct {
 
 func (x *Close) Reset() {
 	*x = Close{}
-	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[3]
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -213,7 +241,7 @@ func (x *Close) String() string {
 func (*Close) ProtoMessage() {}
 
 func (x *Close) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[3]
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -226,7 +254,7 @@ func (x *Close) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Close.ProtoReflect.Descriptor instead.
 func (*Close) Descriptor() ([]byte, []int) {
-	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{3}
+	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{4}
 }
 
 var File_proto_orchestrator_v1_register_proto protoreflect.FileDescriptor
@@ -236,20 +264,21 @@ const file_proto_orchestrator_v1_register_proto_rawDesc = "" +
 	"$proto/orchestrator/v1/register.proto\x12\x18orchestrator.register.v1\"*\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"a\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"@\n" +
 	"\aMessage\x12\x1b\n" +
-	"\tsender_id\x18\x01 \x01(\tR\bsenderId\x12\x1f\n" +
-	"\vreceiver_id\x18\x02 \x01(\tR\n" +
-	"receiverId\x12\x18\n" +
-	"\acontent\x18\x03 \x01(\tR\acontent\"\x85\x01\n" +
+	"\tsender_id\x18\x01 \x01(\tR\bsenderId\x12\x18\n" +
+	"\acontent\x18\x03 \x01(\tR\acontent\"m\n" +
 	"\aConnect\x122\n" +
 	"\x04user\x18\x01 \x01(\v2\x1e.orchestrator.register.v1.UserR\x04user\x12.\n" +
-	"\x13user_connection_ids\x18\x02 \x03(\tR\x11userConnectionIds\x12\x16\n" +
-	"\x06active\x18\x03 \x01(\bR\x06active\"\a\n" +
-	"\x05Close2\xbb\x01\n" +
+	"\x13user_connection_ids\x18\x02 \x03(\tR\x11userConnectionIds\"4\n" +
+	"\x0fConnectResponse\x12!\n" +
+	"\fresponse_msg\x18\x01 \x01(\tR\vresponseMsg\"\a\n" +
+	"\x05Close2\xfe\x02\n" +
 	"\tBroadcast\x12V\n" +
 	"\fCreateStream\x12!.orchestrator.register.v1.Connect\x1a!.orchestrator.register.v1.Message0\x01\x12V\n" +
-	"\x10BroadcastMessage\x12!.orchestrator.register.v1.Message\x1a\x1f.orchestrator.register.v1.CloseBIZGgithub.com/Norzuiso/protocol/gen/go/orchestrator/register/v1;registerv1b\x06proto3"
+	"\x10BroadcastMessage\x12!.orchestrator.register.v1.Message\x1a\x1f.orchestrator.register.v1.Close\x12b\n" +
+	"\x12RegisterConnection\x12!.orchestrator.register.v1.Connect\x1a).orchestrator.register.v1.ConnectResponse\x12]\n" +
+	"\x11PairToPairMessage\x12!.orchestrator.register.v1.Message\x1a!.orchestrator.register.v1.Message(\x010\x01BIZGgithub.com/Norzuiso/protocol/gen/go/orchestrator/register/v1;registerv1b\x06proto3"
 
 var (
 	file_proto_orchestrator_v1_register_proto_rawDescOnce sync.Once
@@ -263,21 +292,26 @@ func file_proto_orchestrator_v1_register_proto_rawDescGZIP() []byte {
 	return file_proto_orchestrator_v1_register_proto_rawDescData
 }
 
-var file_proto_orchestrator_v1_register_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_proto_orchestrator_v1_register_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_proto_orchestrator_v1_register_proto_goTypes = []any{
-	(*User)(nil),    // 0: orchestrator.register.v1.User
-	(*Message)(nil), // 1: orchestrator.register.v1.Message
-	(*Connect)(nil), // 2: orchestrator.register.v1.Connect
-	(*Close)(nil),   // 3: orchestrator.register.v1.Close
+	(*User)(nil),            // 0: orchestrator.register.v1.User
+	(*Message)(nil),         // 1: orchestrator.register.v1.Message
+	(*Connect)(nil),         // 2: orchestrator.register.v1.Connect
+	(*ConnectResponse)(nil), // 3: orchestrator.register.v1.ConnectResponse
+	(*Close)(nil),           // 4: orchestrator.register.v1.Close
 }
 var file_proto_orchestrator_v1_register_proto_depIdxs = []int32{
 	0, // 0: orchestrator.register.v1.Connect.user:type_name -> orchestrator.register.v1.User
 	2, // 1: orchestrator.register.v1.Broadcast.CreateStream:input_type -> orchestrator.register.v1.Connect
 	1, // 2: orchestrator.register.v1.Broadcast.BroadcastMessage:input_type -> orchestrator.register.v1.Message
-	1, // 3: orchestrator.register.v1.Broadcast.CreateStream:output_type -> orchestrator.register.v1.Message
-	3, // 4: orchestrator.register.v1.Broadcast.BroadcastMessage:output_type -> orchestrator.register.v1.Close
-	3, // [3:5] is the sub-list for method output_type
-	1, // [1:3] is the sub-list for method input_type
+	2, // 3: orchestrator.register.v1.Broadcast.RegisterConnection:input_type -> orchestrator.register.v1.Connect
+	1, // 4: orchestrator.register.v1.Broadcast.PairToPairMessage:input_type -> orchestrator.register.v1.Message
+	1, // 5: orchestrator.register.v1.Broadcast.CreateStream:output_type -> orchestrator.register.v1.Message
+	4, // 6: orchestrator.register.v1.Broadcast.BroadcastMessage:output_type -> orchestrator.register.v1.Close
+	3, // 7: orchestrator.register.v1.Broadcast.RegisterConnection:output_type -> orchestrator.register.v1.ConnectResponse
+	1, // 8: orchestrator.register.v1.Broadcast.PairToPairMessage:output_type -> orchestrator.register.v1.Message
+	5, // [5:9] is the sub-list for method output_type
+	1, // [1:5] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
@@ -294,7 +328,7 @@ func file_proto_orchestrator_v1_register_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_orchestrator_v1_register_proto_rawDesc), len(file_proto_orchestrator_v1_register_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

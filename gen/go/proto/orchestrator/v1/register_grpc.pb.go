@@ -19,8 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Broadcast_CreateStream_FullMethodName     = "/orchestrator.register.v1.Broadcast/CreateStream"
-	Broadcast_BroadcastMessage_FullMethodName = "/orchestrator.register.v1.Broadcast/BroadcastMessage"
+	Broadcast_CreateStream_FullMethodName       = "/orchestrator.register.v1.Broadcast/CreateStream"
+	Broadcast_BroadcastMessage_FullMethodName   = "/orchestrator.register.v1.Broadcast/BroadcastMessage"
+	Broadcast_RegisterConnection_FullMethodName = "/orchestrator.register.v1.Broadcast/RegisterConnection"
+	Broadcast_PairToPairMessage_FullMethodName  = "/orchestrator.register.v1.Broadcast/PairToPairMessage"
 )
 
 // BroadcastClient is the client API for Broadcast service.
@@ -29,6 +31,8 @@ const (
 type BroadcastClient interface {
 	CreateStream(ctx context.Context, in *Connect, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Message], error)
 	BroadcastMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Close, error)
+	RegisterConnection(ctx context.Context, in *Connect, opts ...grpc.CallOption) (*ConnectResponse, error)
+	PairToPairMessage(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Message, Message], error)
 }
 
 type broadcastClient struct {
@@ -68,12 +72,37 @@ func (c *broadcastClient) BroadcastMessage(ctx context.Context, in *Message, opt
 	return out, nil
 }
 
+func (c *broadcastClient) RegisterConnection(ctx context.Context, in *Connect, opts ...grpc.CallOption) (*ConnectResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConnectResponse)
+	err := c.cc.Invoke(ctx, Broadcast_RegisterConnection_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *broadcastClient) PairToPairMessage(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Message, Message], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &Broadcast_ServiceDesc.Streams[1], Broadcast_PairToPairMessage_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[Message, Message]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Broadcast_PairToPairMessageClient = grpc.BidiStreamingClient[Message, Message]
+
 // BroadcastServer is the server API for Broadcast service.
 // All implementations must embed UnimplementedBroadcastServer
 // for forward compatibility.
 type BroadcastServer interface {
 	CreateStream(*Connect, grpc.ServerStreamingServer[Message]) error
 	BroadcastMessage(context.Context, *Message) (*Close, error)
+	RegisterConnection(context.Context, *Connect) (*ConnectResponse, error)
+	PairToPairMessage(grpc.BidiStreamingServer[Message, Message]) error
 	mustEmbedUnimplementedBroadcastServer()
 }
 
@@ -89,6 +118,12 @@ func (UnimplementedBroadcastServer) CreateStream(*Connect, grpc.ServerStreamingS
 }
 func (UnimplementedBroadcastServer) BroadcastMessage(context.Context, *Message) (*Close, error) {
 	return nil, status.Error(codes.Unimplemented, "method BroadcastMessage not implemented")
+}
+func (UnimplementedBroadcastServer) RegisterConnection(context.Context, *Connect) (*ConnectResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RegisterConnection not implemented")
+}
+func (UnimplementedBroadcastServer) PairToPairMessage(grpc.BidiStreamingServer[Message, Message]) error {
+	return status.Error(codes.Unimplemented, "method PairToPairMessage not implemented")
 }
 func (UnimplementedBroadcastServer) mustEmbedUnimplementedBroadcastServer() {}
 func (UnimplementedBroadcastServer) testEmbeddedByValue()                   {}
@@ -140,6 +175,31 @@ func _Broadcast_BroadcastMessage_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Broadcast_RegisterConnection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Connect)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BroadcastServer).RegisterConnection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Broadcast_RegisterConnection_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BroadcastServer).RegisterConnection(ctx, req.(*Connect))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Broadcast_PairToPairMessage_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(BroadcastServer).PairToPairMessage(&grpc.GenericServerStream[Message, Message]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Broadcast_PairToPairMessageServer = grpc.BidiStreamingServer[Message, Message]
+
 // Broadcast_ServiceDesc is the grpc.ServiceDesc for Broadcast service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -151,12 +211,22 @@ var Broadcast_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "BroadcastMessage",
 			Handler:    _Broadcast_BroadcastMessage_Handler,
 		},
+		{
+			MethodName: "RegisterConnection",
+			Handler:    _Broadcast_RegisterConnection_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "CreateStream",
 			Handler:       _Broadcast_CreateStream_Handler,
 			ServerStreams: true,
+		},
+		{
+			StreamName:    "PairToPairMessage",
+			Handler:       _Broadcast_PairToPairMessage_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "proto/orchestrator/v1/register.proto",
