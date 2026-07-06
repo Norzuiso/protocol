@@ -9,6 +9,7 @@ package registerv1
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	anypb "google.golang.org/protobuf/types/known/anypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -21,69 +22,81 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type User struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
+type MessageType int32
 
-func (x *User) Reset() {
-	*x = User{}
-	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
+const (
+	MessageType_MESSAGE_TYPE_DEFAULT         MessageType = 0
+	MessageType_MESSAGE_TYPE_ERROR           MessageType = 1
+	MessageType_MESSAGE_TYPE_RECOLECT_EVENTS MessageType = 2
+	MessageType_MESSAGE_TYPE_SEND_EVENTS     MessageType = 3
+	MessageType_MESSAGE_TYPE_REGISTER_STATE  MessageType = 4
+	MessageType_MESSAGE_TYPE_OPEN_STREAM     MessageType = 5
+	MessageType_MESSAGE_TYPE_CLIENT_RESPONSE MessageType = 6
+)
 
-func (x *User) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*User) ProtoMessage() {}
-
-func (x *User) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
+// Enum value maps for MessageType.
+var (
+	MessageType_name = map[int32]string{
+		0: "MESSAGE_TYPE_DEFAULT",
+		1: "MESSAGE_TYPE_ERROR",
+		2: "MESSAGE_TYPE_RECOLECT_EVENTS",
+		3: "MESSAGE_TYPE_SEND_EVENTS",
+		4: "MESSAGE_TYPE_REGISTER_STATE",
+		5: "MESSAGE_TYPE_OPEN_STREAM",
+		6: "MESSAGE_TYPE_CLIENT_RESPONSE",
 	}
-	return mi.MessageOf(x)
+	MessageType_value = map[string]int32{
+		"MESSAGE_TYPE_DEFAULT":         0,
+		"MESSAGE_TYPE_ERROR":           1,
+		"MESSAGE_TYPE_RECOLECT_EVENTS": 2,
+		"MESSAGE_TYPE_SEND_EVENTS":     3,
+		"MESSAGE_TYPE_REGISTER_STATE":  4,
+		"MESSAGE_TYPE_OPEN_STREAM":     5,
+		"MESSAGE_TYPE_CLIENT_RESPONSE": 6,
+	}
+)
+
+func (x MessageType) Enum() *MessageType {
+	p := new(MessageType)
+	*p = x
+	return p
 }
 
-// Deprecated: Use User.ProtoReflect.Descriptor instead.
-func (*User) Descriptor() ([]byte, []int) {
+func (x MessageType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MessageType) Descriptor() protoreflect.EnumDescriptor {
+	return file_proto_orchestrator_v1_register_proto_enumTypes[0].Descriptor()
+}
+
+func (MessageType) Type() protoreflect.EnumType {
+	return &file_proto_orchestrator_v1_register_proto_enumTypes[0]
+}
+
+func (x MessageType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MessageType.Descriptor instead.
+func (MessageType) EnumDescriptor() ([]byte, []int) {
 	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *User) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *User) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
 }
 
 type Message struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SenderId      string                 `protobuf:"bytes,1,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
-	Content       string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
+	Content       string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
+	Enum          *MessageType           `protobuf:"varint,3,opt,name=enum,proto3,enum=orchestrator.register.v1.MessageType,oneof" json:"enum,omitempty"`
+	Epoch         *float32               `protobuf:"fixed32,4,opt,name=epoch,proto3,oneof" json:"epoch,omitempty"`
+	Attributes    map[string]*anypb.Any  `protobuf:"bytes,5,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Message) Reset() {
 	*x = Message{}
-	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[1]
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -95,7 +108,7 @@ func (x *Message) String() string {
 func (*Message) ProtoMessage() {}
 
 func (x *Message) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[1]
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -108,7 +121,7 @@ func (x *Message) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Message.ProtoReflect.Descriptor instead.
 func (*Message) Descriptor() ([]byte, []int) {
-	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{1}
+	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Message) GetSenderId() string {
@@ -125,80 +138,51 @@ func (x *Message) GetContent() string {
 	return ""
 }
 
-type Connect struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	User              *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
-	UserConnectionIds []string               `protobuf:"bytes,2,rep,name=user_connection_ids,json=userConnectionIds,proto3" json:"user_connection_ids,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
-}
-
-func (x *Connect) Reset() {
-	*x = Connect{}
-	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Connect) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Connect) ProtoMessage() {}
-
-func (x *Connect) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
+func (x *Message) GetEnum() MessageType {
+	if x != nil && x.Enum != nil {
+		return *x.Enum
 	}
-	return mi.MessageOf(x)
+	return MessageType_MESSAGE_TYPE_DEFAULT
 }
 
-// Deprecated: Use Connect.ProtoReflect.Descriptor instead.
-func (*Connect) Descriptor() ([]byte, []int) {
-	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{2}
+func (x *Message) GetEpoch() float32 {
+	if x != nil && x.Epoch != nil {
+		return *x.Epoch
+	}
+	return 0
 }
 
-func (x *Connect) GetUser() *User {
+func (x *Message) GetAttributes() map[string]*anypb.Any {
 	if x != nil {
-		return x.User
+		return x.Attributes
 	}
 	return nil
 }
 
-func (x *Connect) GetUserConnectionIds() []string {
-	if x != nil {
-		return x.UserConnectionIds
-	}
-	return nil
-}
-
-type ConnectResponse struct {
+type Client struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ResponseMsg   string                 `protobuf:"bytes,1,opt,name=response_msg,json=responseMsg,proto3" json:"response_msg,omitempty"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description   *string                `protobuf:"bytes,3,opt,name=description,proto3,oneof" json:"description,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ConnectResponse) Reset() {
-	*x = ConnectResponse{}
-	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[3]
+func (x *Client) Reset() {
+	*x = Client{}
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ConnectResponse) String() string {
+func (x *Client) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ConnectResponse) ProtoMessage() {}
+func (*Client) ProtoMessage() {}
 
-func (x *ConnectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[3]
+func (x *Client) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -209,38 +193,151 @@ func (x *ConnectResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ConnectResponse.ProtoReflect.Descriptor instead.
-func (*ConnectResponse) Descriptor() ([]byte, []int) {
-	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{3}
+// Deprecated: Use Client.ProtoReflect.Descriptor instead.
+func (*Client) Descriptor() ([]byte, []int) {
+	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ConnectResponse) GetResponseMsg() string {
+func (x *Client) GetId() string {
 	if x != nil {
-		return x.ResponseMsg
+		return x.Id
 	}
 	return ""
 }
 
-type Close struct {
+func (x *Client) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Client) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
+	}
+	return ""
+}
+
+type ConnectionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Client        *Client                `protobuf:"bytes,1,opt,name=client,proto3" json:"client,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Close) Reset() {
-	*x = Close{}
+func (x *ConnectionRequest) Reset() {
+	*x = ConnectionRequest{}
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectionRequest) ProtoMessage() {}
+
+func (x *ConnectionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectionRequest.ProtoReflect.Descriptor instead.
+func (*ConnectionRequest) Descriptor() ([]byte, []int) {
+	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ConnectionRequest) GetClient() *Client {
+	if x != nil {
+		return x.Client
+	}
+	return nil
+}
+
+type ConnectionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Client        *Client                `protobuf:"bytes,1,opt,name=client,proto3" json:"client,omitempty"`
+	Seed          string                 `protobuf:"bytes,2,opt,name=seed,proto3" json:"seed,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConnectionResponse) Reset() {
+	*x = ConnectionResponse{}
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectionResponse) ProtoMessage() {}
+
+func (x *ConnectionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectionResponse.ProtoReflect.Descriptor instead.
+func (*ConnectionResponse) Descriptor() ([]byte, []int) {
+	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ConnectionResponse) GetClient() *Client {
+	if x != nil {
+		return x.Client
+	}
+	return nil
+}
+
+func (x *ConnectionResponse) GetSeed() string {
+	if x != nil {
+		return x.Seed
+	}
+	return ""
+}
+
+type RegisterConnection struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FromId        string                 `protobuf:"bytes,1,opt,name=from_id,json=fromId,proto3" json:"from_id,omitempty"`
+	ToId          []string               `protobuf:"bytes,2,rep,name=to_id,json=toId,proto3" json:"to_id,omitempty"`
+	Attributes    map[string]*anypb.Any  `protobuf:"bytes,3,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegisterConnection) Reset() {
+	*x = RegisterConnection{}
 	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Close) String() string {
+func (x *RegisterConnection) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Close) ProtoMessage() {}
+func (*RegisterConnection) ProtoMessage() {}
 
-func (x *Close) ProtoReflect() protoreflect.Message {
+func (x *RegisterConnection) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -252,33 +349,81 @@ func (x *Close) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Close.ProtoReflect.Descriptor instead.
-func (*Close) Descriptor() ([]byte, []int) {
+// Deprecated: Use RegisterConnection.ProtoReflect.Descriptor instead.
+func (*RegisterConnection) Descriptor() ([]byte, []int) {
 	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *RegisterConnection) GetFromId() string {
+	if x != nil {
+		return x.FromId
+	}
+	return ""
+}
+
+func (x *RegisterConnection) GetToId() []string {
+	if x != nil {
+		return x.ToId
+	}
+	return nil
+}
+
+func (x *RegisterConnection) GetAttributes() map[string]*anypb.Any {
+	if x != nil {
+		return x.Attributes
+	}
+	return nil
 }
 
 var File_proto_orchestrator_v1_register_proto protoreflect.FileDescriptor
 
 const file_proto_orchestrator_v1_register_proto_rawDesc = "" +
 	"\n" +
-	"$proto/orchestrator/v1/register.proto\x12\x18orchestrator.register.v1\"*\n" +
-	"\x04User\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"@\n" +
+	"$proto/orchestrator/v1/register.proto\x12\x18orchestrator.register.v1\x1a\x19google/protobuf/any.proto\"\xd6\x02\n" +
 	"\aMessage\x12\x1b\n" +
 	"\tsender_id\x18\x01 \x01(\tR\bsenderId\x12\x18\n" +
-	"\acontent\x18\x03 \x01(\tR\acontent\"m\n" +
-	"\aConnect\x122\n" +
-	"\x04user\x18\x01 \x01(\v2\x1e.orchestrator.register.v1.UserR\x04user\x12.\n" +
-	"\x13user_connection_ids\x18\x02 \x03(\tR\x11userConnectionIds\"4\n" +
-	"\x0fConnectResponse\x12!\n" +
-	"\fresponse_msg\x18\x01 \x01(\tR\vresponseMsg\"\a\n" +
-	"\x05Close2\xfe\x02\n" +
-	"\tBroadcast\x12V\n" +
-	"\fCreateStream\x12!.orchestrator.register.v1.Connect\x1a!.orchestrator.register.v1.Message0\x01\x12V\n" +
-	"\x10BroadcastMessage\x12!.orchestrator.register.v1.Message\x1a\x1f.orchestrator.register.v1.Close\x12b\n" +
-	"\x12RegisterConnection\x12!.orchestrator.register.v1.Connect\x1a).orchestrator.register.v1.ConnectResponse\x12]\n" +
-	"\x11PairToPairMessage\x12!.orchestrator.register.v1.Message\x1a!.orchestrator.register.v1.Message(\x010\x01BIZGgithub.com/Norzuiso/protocol/gen/go/orchestrator/register/v1;registerv1b\x06proto3"
+	"\acontent\x18\x02 \x01(\tR\acontent\x12>\n" +
+	"\x04enum\x18\x03 \x01(\x0e2%.orchestrator.register.v1.MessageTypeH\x00R\x04enum\x88\x01\x01\x12\x19\n" +
+	"\x05epoch\x18\x04 \x01(\x02H\x01R\x05epoch\x88\x01\x01\x12Q\n" +
+	"\n" +
+	"attributes\x18\x05 \x03(\v21.orchestrator.register.v1.Message.AttributesEntryR\n" +
+	"attributes\x1aS\n" +
+	"\x0fAttributesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12*\n" +
+	"\x05value\x18\x02 \x01(\v2\x14.google.protobuf.AnyR\x05value:\x028\x01B\a\n" +
+	"\x05_enumB\b\n" +
+	"\x06_epoch\"c\n" +
+	"\x06Client\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12%\n" +
+	"\vdescription\x18\x03 \x01(\tH\x00R\vdescription\x88\x01\x01B\x0e\n" +
+	"\f_description\"M\n" +
+	"\x11ConnectionRequest\x128\n" +
+	"\x06client\x18\x01 \x01(\v2 .orchestrator.register.v1.ClientR\x06client\"b\n" +
+	"\x12ConnectionResponse\x128\n" +
+	"\x06client\x18\x01 \x01(\v2 .orchestrator.register.v1.ClientR\x06client\x12\x12\n" +
+	"\x04seed\x18\x02 \x01(\tR\x04seed\"\xf5\x01\n" +
+	"\x12RegisterConnection\x12\x17\n" +
+	"\afrom_id\x18\x01 \x01(\tR\x06fromId\x12\x13\n" +
+	"\x05to_id\x18\x02 \x03(\tR\x04toId\x12\\\n" +
+	"\n" +
+	"attributes\x18\x03 \x03(\v2<.orchestrator.register.v1.RegisterConnection.AttributesEntryR\n" +
+	"attributes\x1aS\n" +
+	"\x0fAttributesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12*\n" +
+	"\x05value\x18\x02 \x01(\v2\x14.google.protobuf.AnyR\x05value:\x028\x01*\xe0\x01\n" +
+	"\vMessageType\x12\x18\n" +
+	"\x14MESSAGE_TYPE_DEFAULT\x10\x00\x12\x16\n" +
+	"\x12MESSAGE_TYPE_ERROR\x10\x01\x12 \n" +
+	"\x1cMESSAGE_TYPE_RECOLECT_EVENTS\x10\x02\x12\x1c\n" +
+	"\x18MESSAGE_TYPE_SEND_EVENTS\x10\x03\x12\x1f\n" +
+	"\x1bMESSAGE_TYPE_REGISTER_STATE\x10\x04\x12\x1c\n" +
+	"\x18MESSAGE_TYPE_OPEN_STREAM\x10\x05\x12 \n" +
+	"\x1cMESSAGE_TYPE_CLIENT_RESPONSE\x10\x062\xda\x01\n" +
+	"\tBroadcast\x12j\n" +
+	"\rConnectClient\x12+.orchestrator.register.v1.ConnectionRequest\x1a,.orchestrator.register.v1.ConnectionResponse\x12a\n" +
+	"\x15ClientToClientMessage\x12!.orchestrator.register.v1.Message\x1a!.orchestrator.register.v1.Message(\x010\x01B\x82\x01\n" +
+	"\x1fcom.orchestrator.register.protoB\x14RegisterServiceProtoP\x01ZGgithub.com/Norzuiso/protocol/gen/go/orchestrator/register/v1;registerv1b\x06proto3"
 
 var (
 	file_proto_orchestrator_v1_register_proto_rawDescOnce sync.Once
@@ -292,29 +437,36 @@ func file_proto_orchestrator_v1_register_proto_rawDescGZIP() []byte {
 	return file_proto_orchestrator_v1_register_proto_rawDescData
 }
 
-var file_proto_orchestrator_v1_register_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_proto_orchestrator_v1_register_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_proto_orchestrator_v1_register_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_proto_orchestrator_v1_register_proto_goTypes = []any{
-	(*User)(nil),            // 0: orchestrator.register.v1.User
-	(*Message)(nil),         // 1: orchestrator.register.v1.Message
-	(*Connect)(nil),         // 2: orchestrator.register.v1.Connect
-	(*ConnectResponse)(nil), // 3: orchestrator.register.v1.ConnectResponse
-	(*Close)(nil),           // 4: orchestrator.register.v1.Close
+	(MessageType)(0),           // 0: orchestrator.register.v1.MessageType
+	(*Message)(nil),            // 1: orchestrator.register.v1.Message
+	(*Client)(nil),             // 2: orchestrator.register.v1.Client
+	(*ConnectionRequest)(nil),  // 3: orchestrator.register.v1.ConnectionRequest
+	(*ConnectionResponse)(nil), // 4: orchestrator.register.v1.ConnectionResponse
+	(*RegisterConnection)(nil), // 5: orchestrator.register.v1.RegisterConnection
+	nil,                        // 6: orchestrator.register.v1.Message.AttributesEntry
+	nil,                        // 7: orchestrator.register.v1.RegisterConnection.AttributesEntry
+	(*anypb.Any)(nil),          // 8: google.protobuf.Any
 }
 var file_proto_orchestrator_v1_register_proto_depIdxs = []int32{
-	0, // 0: orchestrator.register.v1.Connect.user:type_name -> orchestrator.register.v1.User
-	2, // 1: orchestrator.register.v1.Broadcast.CreateStream:input_type -> orchestrator.register.v1.Connect
-	1, // 2: orchestrator.register.v1.Broadcast.BroadcastMessage:input_type -> orchestrator.register.v1.Message
-	2, // 3: orchestrator.register.v1.Broadcast.RegisterConnection:input_type -> orchestrator.register.v1.Connect
-	1, // 4: orchestrator.register.v1.Broadcast.PairToPairMessage:input_type -> orchestrator.register.v1.Message
-	1, // 5: orchestrator.register.v1.Broadcast.CreateStream:output_type -> orchestrator.register.v1.Message
-	4, // 6: orchestrator.register.v1.Broadcast.BroadcastMessage:output_type -> orchestrator.register.v1.Close
-	3, // 7: orchestrator.register.v1.Broadcast.RegisterConnection:output_type -> orchestrator.register.v1.ConnectResponse
-	1, // 8: orchestrator.register.v1.Broadcast.PairToPairMessage:output_type -> orchestrator.register.v1.Message
-	5, // [5:9] is the sub-list for method output_type
-	1, // [1:5] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0, // 0: orchestrator.register.v1.Message.enum:type_name -> orchestrator.register.v1.MessageType
+	6, // 1: orchestrator.register.v1.Message.attributes:type_name -> orchestrator.register.v1.Message.AttributesEntry
+	2, // 2: orchestrator.register.v1.ConnectionRequest.client:type_name -> orchestrator.register.v1.Client
+	2, // 3: orchestrator.register.v1.ConnectionResponse.client:type_name -> orchestrator.register.v1.Client
+	7, // 4: orchestrator.register.v1.RegisterConnection.attributes:type_name -> orchestrator.register.v1.RegisterConnection.AttributesEntry
+	8, // 5: orchestrator.register.v1.Message.AttributesEntry.value:type_name -> google.protobuf.Any
+	8, // 6: orchestrator.register.v1.RegisterConnection.AttributesEntry.value:type_name -> google.protobuf.Any
+	3, // 7: orchestrator.register.v1.Broadcast.ConnectClient:input_type -> orchestrator.register.v1.ConnectionRequest
+	1, // 8: orchestrator.register.v1.Broadcast.ClientToClientMessage:input_type -> orchestrator.register.v1.Message
+	4, // 9: orchestrator.register.v1.Broadcast.ConnectClient:output_type -> orchestrator.register.v1.ConnectionResponse
+	1, // 10: orchestrator.register.v1.Broadcast.ClientToClientMessage:output_type -> orchestrator.register.v1.Message
+	9, // [9:11] is the sub-list for method output_type
+	7, // [7:9] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_proto_orchestrator_v1_register_proto_init() }
@@ -322,18 +474,21 @@ func file_proto_orchestrator_v1_register_proto_init() {
 	if File_proto_orchestrator_v1_register_proto != nil {
 		return
 	}
+	file_proto_orchestrator_v1_register_proto_msgTypes[0].OneofWrappers = []any{}
+	file_proto_orchestrator_v1_register_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_orchestrator_v1_register_proto_rawDesc), len(file_proto_orchestrator_v1_register_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   5,
+			NumEnums:      1,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_proto_orchestrator_v1_register_proto_goTypes,
 		DependencyIndexes: file_proto_orchestrator_v1_register_proto_depIdxs,
+		EnumInfos:         file_proto_orchestrator_v1_register_proto_enumTypes,
 		MessageInfos:      file_proto_orchestrator_v1_register_proto_msgTypes,
 	}.Build()
 	File_proto_orchestrator_v1_register_proto = out.File

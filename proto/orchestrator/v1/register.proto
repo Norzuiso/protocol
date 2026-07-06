@@ -2,31 +2,54 @@ syntax = "proto3";
 package orchestrator.register.v1;
 option go_package = "github.com/Norzuiso/protocol/gen/go/orchestrator/register/v1;registerv1";
 
-message User {
-    string id = 1;
-    string name = 2;
+option java_multiple_files = true;
+option java_package = "com.orchestrator.v1.register";
+option java_outer_classname = "RegisterServiceProto";
+
+import "google/protobuf/any.proto";
+
+
+enum MessageType {
+    MESSAGE_TYPE_DEFAULT = 0;
+    MESSAGE_TYPE_ERROR = 1;
+    MESSAGE_TYPE_RECOLECT_EVENTS = 2;
+    MESSAGE_TYPE_SEND_EVENTS = 3;
+    MESSAGE_TYPE_REGISTER_STATE = 4;
+    
+    MESSAGE_TYPE_OPEN_STREAM = 5;
+    MESSAGE_TYPE_CLIENT_RESPONSE = 6;
 }
 
 message Message {
     string sender_id = 1;
-    string content = 3;
+    string content = 2;
+    optional MessageType enum = 3;
+    optional float epoch = 4;
+    map<string, google.protobuf.Any> attributes = 5;
 }
 
-message Connect {
-    User user = 1;
-    repeated string user_connection_ids = 2;
+message Client {
+    string id = 1;
+    string name = 2;
+    optional string description = 3;
 }
 
-message ConnectResponse {
-    string response_msg = 1;
+message ConnectionRequest {
+    Client client = 1;
 }
 
+message ConnectionResponse {
+    Client client = 1;
+    string seed = 2;
+}
 
-message Close {}
+message RegisterConnection {
+    string from_id = 1;
+    repeated string to_id = 2;
+    map<string, google.protobuf.Any> attributes = 3;
+}
 
 service Broadcast{
-    rpc CreateStream(Connect) returns (stream Message);
-    rpc BroadcastMessage(Message) returns (Close);
-    rpc RegisterConnection(Connect) returns (ConnectResponse);
-    rpc PairToPairMessage(stream Message) returns (stream Message);
+    rpc ConnectClient(ConnectionRequest) returns (ConnectionResponse);
+    rpc ClientToClientMessage(stream Message) returns (stream Message);
 }
