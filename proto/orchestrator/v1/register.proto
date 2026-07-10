@@ -43,13 +43,18 @@ message ConnectionResponse {
     string seed = 2;
 }
 
-message RegisterConnection {
+message RegisterConnectionRequest {
     string from_id = 1;
     repeated string to_id = 2;
     map<string, google.protobuf.Any> attributes = 3;
 }
 
+message RegisterConnectionResponse {
+    string response = 1;
+}
+
 service Broadcast{
     rpc ConnectClient(ConnectionRequest) returns (ConnectionResponse);
     rpc ClientToClientMessage(stream Message) returns (stream Message);
+    rpc RegisterConnection(RegisterConnectionRequest) returns (RegisterConnectionResponse);
 }
