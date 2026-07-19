@@ -12,26 +12,42 @@ import "google/protobuf/any.proto";
 enum MessageType {
     MESSAGE_TYPE_DEFAULT = 0;
     MESSAGE_TYPE_ERROR = 1;
-    MESSAGE_TYPE_RECOLECT_EVENTS = 2;
-    MESSAGE_TYPE_SEND_EVENTS = 3;
-    MESSAGE_TYPE_REGISTER_STATE = 4;
+
+    // Orquestrator send request to have the event from a client
+    MESSAGE_TYPE_RECOLECT_EVENT = 2;
+
+    // Client send an event to the orquestrator
+    MESSAGE_TYPE_SEND_EVENT = 3;
+
+    // Once the orquestrator recolect an event from a client. it sends the event 
+    // to other clients that apply/react 
+    MESSAGE_TYPE_APPLY_EVENT =4;
     
+    // Open stream to have an active connection with the orquestrator. This is used to have communication between clients using orquestrator as intermediario
     MESSAGE_TYPE_OPEN_STREAM = 5;
+
     MESSAGE_TYPE_CLIENT_RESPONSE = 6;
+
+    // This type of message is send it from the orquestrator. 
+    // This means that the client sent a not allow it type of message
+    MESSAGE_TYPE_ERROR_PHASE=7;
+    
+    MESSAGE_TYPE_CLIENT_STATUS=8;
 }
 
 message Message {
-    string sender_id = 1;
+    int64 sender_id = 1;
     string content = 2;
-    optional MessageType enum = 3;
+    optional MessageType messageType = 3;
     optional float epoch = 4;
     map<string, google.protobuf.Any> attributes = 5;
 }
 
 message Client {
-    string id = 1;
+    int64 id = 1;
     string name = 2;
     optional string description = 3;
+    int64 seed = 4; // the seed could have a value but if no the orchestrator assign one
 }
 
 message ConnectionRequest {
@@ -40,12 +56,11 @@ message ConnectionRequest {
 
 message ConnectionResponse {
     Client client = 1;
-    string seed = 2;
 }
 
 message RegisterConnectionRequest {
-    string from_id = 1;
-    repeated string to_id = 2;
+    int64 from_id = 1;
+    repeated int64 to_id = 2;
     map<string, google.protobuf.Any> attributes = 3;
 }
 

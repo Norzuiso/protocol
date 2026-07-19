@@ -7,12 +7,13 @@
 package registerv1
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	anypb "google.golang.org/protobuf/types/known/anypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	anypb "google.golang.org/protobuf/types/known/anypb"
 )
 
 const (
@@ -25,13 +26,22 @@ const (
 type MessageType int32
 
 const (
-	MessageType_MESSAGE_TYPE_DEFAULT         MessageType = 0
-	MessageType_MESSAGE_TYPE_ERROR           MessageType = 1
-	MessageType_MESSAGE_TYPE_RECOLECT_EVENTS MessageType = 2
-	MessageType_MESSAGE_TYPE_SEND_EVENTS     MessageType = 3
-	MessageType_MESSAGE_TYPE_REGISTER_STATE  MessageType = 4
+	MessageType_MESSAGE_TYPE_DEFAULT MessageType = 0
+	MessageType_MESSAGE_TYPE_ERROR   MessageType = 1
+	// Orquestrator send request to have the event from a client
+	MessageType_MESSAGE_TYPE_RECOLECT_EVENT MessageType = 2
+	// Client send an event to the orquestrator
+	MessageType_MESSAGE_TYPE_SEND_EVENT MessageType = 3
+	// Once the orquestrator recolect an event from a client. it sends the event
+	// to other clients that apply/react
+	MessageType_MESSAGE_TYPE_APPLY_EVENT MessageType = 4
+	// Open stream to have an active connection with the orquestrator. This is used to have communication between clients using orquestrator as intermediario
 	MessageType_MESSAGE_TYPE_OPEN_STREAM     MessageType = 5
 	MessageType_MESSAGE_TYPE_CLIENT_RESPONSE MessageType = 6
+	// This type of message is send it from the orquestrator.
+	// This means that the client sent a not allow it type of message
+	MessageType_MESSAGE_TYPE_ERROR_PHASE   MessageType = 7
+	MessageType_MESSAGE_TYPE_CLIENT_STATUS MessageType = 8
 )
 
 // Enum value maps for MessageType.
@@ -39,20 +49,24 @@ var (
 	MessageType_name = map[int32]string{
 		0: "MESSAGE_TYPE_DEFAULT",
 		1: "MESSAGE_TYPE_ERROR",
-		2: "MESSAGE_TYPE_RECOLECT_EVENTS",
-		3: "MESSAGE_TYPE_SEND_EVENTS",
-		4: "MESSAGE_TYPE_REGISTER_STATE",
+		2: "MESSAGE_TYPE_RECOLECT_EVENT",
+		3: "MESSAGE_TYPE_SEND_EVENT",
+		4: "MESSAGE_TYPE_APPLY_EVENT",
 		5: "MESSAGE_TYPE_OPEN_STREAM",
 		6: "MESSAGE_TYPE_CLIENT_RESPONSE",
+		7: "MESSAGE_TYPE_ERROR_PHASE",
+		8: "MESSAGE_TYPE_CLIENT_STATUS",
 	}
 	MessageType_value = map[string]int32{
 		"MESSAGE_TYPE_DEFAULT":         0,
 		"MESSAGE_TYPE_ERROR":           1,
-		"MESSAGE_TYPE_RECOLECT_EVENTS": 2,
-		"MESSAGE_TYPE_SEND_EVENTS":     3,
-		"MESSAGE_TYPE_REGISTER_STATE":  4,
+		"MESSAGE_TYPE_RECOLECT_EVENT":  2,
+		"MESSAGE_TYPE_SEND_EVENT":      3,
+		"MESSAGE_TYPE_APPLY_EVENT":     4,
 		"MESSAGE_TYPE_OPEN_STREAM":     5,
 		"MESSAGE_TYPE_CLIENT_RESPONSE": 6,
+		"MESSAGE_TYPE_ERROR_PHASE":     7,
+		"MESSAGE_TYPE_CLIENT_STATUS":   8,
 	}
 )
 
@@ -85,9 +99,9 @@ func (MessageType) EnumDescriptor() ([]byte, []int) {
 
 type Message struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	SenderId      string                 `protobuf:"bytes,1,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
+	SenderId      int64                  `protobuf:"varint,1,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
 	Content       string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
-	Enum          *MessageType           `protobuf:"varint,3,opt,name=enum,proto3,enum=orchestrator.register.v1.MessageType,oneof" json:"enum,omitempty"`
+	MessageType   *MessageType           `protobuf:"varint,3,opt,name=messageType,proto3,enum=orchestrator.register.v1.MessageType,oneof" json:"messageType,omitempty"`
 	Epoch         *float32               `protobuf:"fixed32,4,opt,name=epoch,proto3,oneof" json:"epoch,omitempty"`
 	Attributes    map[string]*anypb.Any  `protobuf:"bytes,5,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
@@ -124,11 +138,11 @@ func (*Message) Descriptor() ([]byte, []int) {
 	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Message) GetSenderId() string {
+func (x *Message) GetSenderId() int64 {
 	if x != nil {
 		return x.SenderId
 	}
-	return ""
+	return 0
 }
 
 func (x *Message) GetContent() string {
@@ -138,9 +152,9 @@ func (x *Message) GetContent() string {
 	return ""
 }
 
-func (x *Message) GetEnum() MessageType {
-	if x != nil && x.Enum != nil {
-		return *x.Enum
+func (x *Message) GetMessageType() MessageType {
+	if x != nil && x.MessageType != nil {
+		return *x.MessageType
 	}
 	return MessageType_MESSAGE_TYPE_DEFAULT
 }
@@ -161,9 +175,10 @@ func (x *Message) GetAttributes() map[string]*anypb.Any {
 
 type Client struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Description   *string                `protobuf:"bytes,3,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Seed          int64                  `protobuf:"varint,4,opt,name=seed,proto3" json:"seed,omitempty"` // the seed could have a value but if no the orchestrator assign one
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -198,11 +213,11 @@ func (*Client) Descriptor() ([]byte, []int) {
 	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *Client) GetId() string {
+func (x *Client) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *Client) GetName() string {
@@ -217,6 +232,13 @@ func (x *Client) GetDescription() string {
 		return *x.Description
 	}
 	return ""
+}
+
+func (x *Client) GetSeed() int64 {
+	if x != nil {
+		return x.Seed
+	}
+	return 0
 }
 
 type ConnectionRequest struct {
@@ -266,7 +288,6 @@ func (x *ConnectionRequest) GetClient() *Client {
 type ConnectionResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Client        *Client                `protobuf:"bytes,1,opt,name=client,proto3" json:"client,omitempty"`
-	Seed          string                 `protobuf:"bytes,2,opt,name=seed,proto3" json:"seed,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -308,17 +329,10 @@ func (x *ConnectionResponse) GetClient() *Client {
 	return nil
 }
 
-func (x *ConnectionResponse) GetSeed() string {
-	if x != nil {
-		return x.Seed
-	}
-	return ""
-}
-
 type RegisterConnectionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	FromId        string                 `protobuf:"bytes,1,opt,name=from_id,json=fromId,proto3" json:"from_id,omitempty"`
-	ToId          []string               `protobuf:"bytes,2,rep,name=to_id,json=toId,proto3" json:"to_id,omitempty"`
+	FromId        int64                  `protobuf:"varint,1,opt,name=from_id,json=fromId,proto3" json:"from_id,omitempty"`
+	ToId          []int64                `protobuf:"varint,2,rep,packed,name=to_id,json=toId,proto3" json:"to_id,omitempty"`
 	Attributes    map[string]*anypb.Any  `protobuf:"bytes,3,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -354,14 +368,14 @@ func (*RegisterConnectionRequest) Descriptor() ([]byte, []int) {
 	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *RegisterConnectionRequest) GetFromId() string {
+func (x *RegisterConnectionRequest) GetFromId() int64 {
 	if x != nil {
 		return x.FromId
 	}
-	return ""
+	return 0
 }
 
-func (x *RegisterConnectionRequest) GetToId() []string {
+func (x *RegisterConnectionRequest) GetToId() []int64 {
 	if x != nil {
 		return x.ToId
 	}
@@ -423,33 +437,33 @@ var File_proto_orchestrator_v1_register_proto protoreflect.FileDescriptor
 
 const file_proto_orchestrator_v1_register_proto_rawDesc = "" +
 	"\n" +
-	"$proto/orchestrator/v1/register.proto\x12\x18orchestrator.register.v1\x1a\x19google/protobuf/any.proto\"\xd6\x02\n" +
+	"$proto/orchestrator/v1/register.proto\x12\x18orchestrator.register.v1\x1a\x19google/protobuf/any.proto\"\xeb\x02\n" +
 	"\aMessage\x12\x1b\n" +
-	"\tsender_id\x18\x01 \x01(\tR\bsenderId\x12\x18\n" +
-	"\acontent\x18\x02 \x01(\tR\acontent\x12>\n" +
-	"\x04enum\x18\x03 \x01(\x0e2%.orchestrator.register.v1.MessageTypeH\x00R\x04enum\x88\x01\x01\x12\x19\n" +
+	"\tsender_id\x18\x01 \x01(\x03R\bsenderId\x12\x18\n" +
+	"\acontent\x18\x02 \x01(\tR\acontent\x12L\n" +
+	"\vmessageType\x18\x03 \x01(\x0e2%.orchestrator.register.v1.MessageTypeH\x00R\vmessageType\x88\x01\x01\x12\x19\n" +
 	"\x05epoch\x18\x04 \x01(\x02H\x01R\x05epoch\x88\x01\x01\x12Q\n" +
 	"\n" +
 	"attributes\x18\x05 \x03(\v21.orchestrator.register.v1.Message.AttributesEntryR\n" +
 	"attributes\x1aS\n" +
 	"\x0fAttributesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12*\n" +
-	"\x05value\x18\x02 \x01(\v2\x14.google.protobuf.AnyR\x05value:\x028\x01B\a\n" +
-	"\x05_enumB\b\n" +
-	"\x06_epoch\"c\n" +
+	"\x05value\x18\x02 \x01(\v2\x14.google.protobuf.AnyR\x05value:\x028\x01B\x0e\n" +
+	"\f_messageTypeB\b\n" +
+	"\x06_epoch\"w\n" +
 	"\x06Client\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12%\n" +
-	"\vdescription\x18\x03 \x01(\tH\x00R\vdescription\x88\x01\x01B\x0e\n" +
+	"\vdescription\x18\x03 \x01(\tH\x00R\vdescription\x88\x01\x01\x12\x12\n" +
+	"\x04seed\x18\x04 \x01(\x03R\x04seedB\x0e\n" +
 	"\f_description\"M\n" +
 	"\x11ConnectionRequest\x128\n" +
-	"\x06client\x18\x01 \x01(\v2 .orchestrator.register.v1.ClientR\x06client\"b\n" +
+	"\x06client\x18\x01 \x01(\v2 .orchestrator.register.v1.ClientR\x06client\"N\n" +
 	"\x12ConnectionResponse\x128\n" +
-	"\x06client\x18\x01 \x01(\v2 .orchestrator.register.v1.ClientR\x06client\x12\x12\n" +
-	"\x04seed\x18\x02 \x01(\tR\x04seed\"\x83\x02\n" +
+	"\x06client\x18\x01 \x01(\v2 .orchestrator.register.v1.ClientR\x06client\"\x83\x02\n" +
 	"\x19RegisterConnectionRequest\x12\x17\n" +
-	"\afrom_id\x18\x01 \x01(\tR\x06fromId\x12\x13\n" +
-	"\x05to_id\x18\x02 \x03(\tR\x04toId\x12c\n" +
+	"\afrom_id\x18\x01 \x01(\x03R\x06fromId\x12\x13\n" +
+	"\x05to_id\x18\x02 \x03(\x03R\x04toId\x12c\n" +
 	"\n" +
 	"attributes\x18\x03 \x03(\v2C.orchestrator.register.v1.RegisterConnectionRequest.AttributesEntryR\n" +
 	"attributes\x1aS\n" +
@@ -457,15 +471,17 @@ const file_proto_orchestrator_v1_register_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12*\n" +
 	"\x05value\x18\x02 \x01(\v2\x14.google.protobuf.AnyR\x05value:\x028\x01\"8\n" +
 	"\x1aRegisterConnectionResponse\x12\x1a\n" +
-	"\bresponse\x18\x01 \x01(\tR\bresponse*\xe0\x01\n" +
+	"\bresponse\x18\x01 \x01(\tR\bresponse*\x99\x02\n" +
 	"\vMessageType\x12\x18\n" +
 	"\x14MESSAGE_TYPE_DEFAULT\x10\x00\x12\x16\n" +
-	"\x12MESSAGE_TYPE_ERROR\x10\x01\x12 \n" +
-	"\x1cMESSAGE_TYPE_RECOLECT_EVENTS\x10\x02\x12\x1c\n" +
-	"\x18MESSAGE_TYPE_SEND_EVENTS\x10\x03\x12\x1f\n" +
-	"\x1bMESSAGE_TYPE_REGISTER_STATE\x10\x04\x12\x1c\n" +
+	"\x12MESSAGE_TYPE_ERROR\x10\x01\x12\x1f\n" +
+	"\x1bMESSAGE_TYPE_RECOLECT_EVENT\x10\x02\x12\x1b\n" +
+	"\x17MESSAGE_TYPE_SEND_EVENT\x10\x03\x12\x1c\n" +
+	"\x18MESSAGE_TYPE_APPLY_EVENT\x10\x04\x12\x1c\n" +
 	"\x18MESSAGE_TYPE_OPEN_STREAM\x10\x05\x12 \n" +
-	"\x1cMESSAGE_TYPE_CLIENT_RESPONSE\x10\x062\xdb\x02\n" +
+	"\x1cMESSAGE_TYPE_CLIENT_RESPONSE\x10\x06\x12\x1c\n" +
+	"\x18MESSAGE_TYPE_ERROR_PHASE\x10\a\x12\x1e\n" +
+	"\x1aMESSAGE_TYPE_CLIENT_STATUS\x10\b2\xdb\x02\n" +
 	"\tBroadcast\x12j\n" +
 	"\rConnectClient\x12+.orchestrator.register.v1.ConnectionRequest\x1a,.orchestrator.register.v1.ConnectionResponse\x12a\n" +
 	"\x15ClientToClientMessage\x12!.orchestrator.register.v1.Message\x1a!.orchestrator.register.v1.Message(\x010\x01\x12\x7f\n" +
@@ -499,7 +515,7 @@ var file_proto_orchestrator_v1_register_proto_goTypes = []any{
 	(*anypb.Any)(nil),                  // 9: google.protobuf.Any
 }
 var file_proto_orchestrator_v1_register_proto_depIdxs = []int32{
-	0,  // 0: orchestrator.register.v1.Message.enum:type_name -> orchestrator.register.v1.MessageType
+	0,  // 0: orchestrator.register.v1.Message.messageType:type_name -> orchestrator.register.v1.MessageType
 	7,  // 1: orchestrator.register.v1.Message.attributes:type_name -> orchestrator.register.v1.Message.AttributesEntry
 	2,  // 2: orchestrator.register.v1.ConnectionRequest.client:type_name -> orchestrator.register.v1.Client
 	2,  // 3: orchestrator.register.v1.ConnectionResponse.client:type_name -> orchestrator.register.v1.Client
