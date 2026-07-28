@@ -40,7 +40,7 @@ message Message {
     int64 sender_id = 1;
     string content = 2;
     MessageType messageType = 3;
-    float epoch = 4;
+    int64 epoch = 4;
     map<string, google.protobuf.Any> attributes = 5;
     int64 seed = 6; 
 }

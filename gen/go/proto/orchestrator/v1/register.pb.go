@@ -101,7 +101,7 @@ type Message struct {
 	SenderId      int64                  `protobuf:"varint,1,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
 	Content       string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
 	MessageType   MessageType            `protobuf:"varint,3,opt,name=messageType,proto3,enum=orchestrator.register.v1.MessageType" json:"messageType,omitempty"`
-	Epoch         float32                `protobuf:"fixed32,4,opt,name=epoch,proto3" json:"epoch,omitempty"`
+	Epoch         int64                  `protobuf:"varint,4,opt,name=epoch,proto3" json:"epoch,omitempty"`
 	Attributes    map[string]*anypb.Any  `protobuf:"bytes,5,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Seed          int64                  `protobuf:"varint,6,opt,name=seed,proto3" json:"seed,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -159,7 +159,7 @@ func (x *Message) GetMessageType() MessageType {
 	return MessageType_MESSAGE_TYPE_DEFAULT
 }
 
-func (x *Message) GetEpoch() float32 {
+func (x *Message) GetEpoch() int64 {
 	if x != nil {
 		return x.Epoch
 	}
@@ -449,7 +449,7 @@ const file_proto_orchestrator_v1_register_proto_rawDesc = "" +
 	"\tsender_id\x18\x01 \x01(\x03R\bsenderId\x12\x18\n" +
 	"\acontent\x18\x02 \x01(\tR\acontent\x12G\n" +
 	"\vmessageType\x18\x03 \x01(\x0e2%.orchestrator.register.v1.MessageTypeR\vmessageType\x12\x14\n" +
-	"\x05epoch\x18\x04 \x01(\x02R\x05epoch\x12Q\n" +
+	"\x05epoch\x18\x04 \x01(\x03R\x05epoch\x12Q\n" +
 	"\n" +
 	"attributes\x18\x05 \x03(\v21.orchestrator.register.v1.Message.AttributesEntryR\n" +
 	"attributes\x12\x12\n" +
