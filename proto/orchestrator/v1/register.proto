@@ -42,6 +42,7 @@ message Message {
     MessageType messageType = 3;
     float epoch = 4;
     map<string, google.protobuf.Any> attributes = 5;
+    int64 seed = 6; 
 }
 
 message Client {
