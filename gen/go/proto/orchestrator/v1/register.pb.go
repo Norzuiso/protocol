@@ -339,7 +339,7 @@ func (x *ConnectionResponse) GetClient() *Client {
 type RegisterConnectionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FromId        int64                  `protobuf:"varint,1,opt,name=from_id,json=fromId,proto3" json:"from_id,omitempty"`
-	To            []*ClientConnection    `protobuf:"bytes,2,rep,name=to,proto3" json:"to,omitempty"`
+	To            *ClientConnectionList  `protobuf:"bytes,2,opt,name=to,proto3" json:"to,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -381,9 +381,53 @@ func (x *RegisterConnectionRequest) GetFromId() int64 {
 	return 0
 }
 
-func (x *RegisterConnectionRequest) GetTo() []*ClientConnection {
+func (x *RegisterConnectionRequest) GetTo() *ClientConnectionList {
 	if x != nil {
 		return x.To
+	}
+	return nil
+}
+
+type ClientConnectionList struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Connections   []*ClientConnection    `protobuf:"bytes,1,rep,name=connections,proto3" json:"connections,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClientConnectionList) Reset() {
+	*x = ClientConnectionList{}
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClientConnectionList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClientConnectionList) ProtoMessage() {}
+
+func (x *ClientConnectionList) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClientConnectionList.ProtoReflect.Descriptor instead.
+func (*ClientConnectionList) Descriptor() ([]byte, []int) {
+	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ClientConnectionList) GetConnections() []*ClientConnection {
+	if x != nil {
+		return x.Connections
 	}
 	return nil
 }
@@ -398,7 +442,7 @@ type ClientConnection struct {
 
 func (x *ClientConnection) Reset() {
 	*x = ClientConnection{}
-	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[5]
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -410,7 +454,7 @@ func (x *ClientConnection) String() string {
 func (*ClientConnection) ProtoMessage() {}
 
 func (x *ClientConnection) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[5]
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -423,7 +467,7 @@ func (x *ClientConnection) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientConnection.ProtoReflect.Descriptor instead.
 func (*ClientConnection) Descriptor() ([]byte, []int) {
-	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{5}
+	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ClientConnection) GetToId() int64 {
@@ -449,7 +493,7 @@ type RegisterConnectionResponse struct {
 
 func (x *RegisterConnectionResponse) Reset() {
 	*x = RegisterConnectionResponse{}
-	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[6]
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -461,7 +505,7 @@ func (x *RegisterConnectionResponse) String() string {
 func (*RegisterConnectionResponse) ProtoMessage() {}
 
 func (x *RegisterConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[6]
+	mi := &file_proto_orchestrator_v1_register_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -474,7 +518,7 @@ func (x *RegisterConnectionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterConnectionResponse.ProtoReflect.Descriptor instead.
 func (*RegisterConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{6}
+	return file_proto_orchestrator_v1_register_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *RegisterConnectionResponse) GetResponse() string {
@@ -510,10 +554,12 @@ const file_proto_orchestrator_v1_register_proto_rawDesc = "" +
 	"\x11ConnectionRequest\x128\n" +
 	"\x06client\x18\x01 \x01(\v2 .orchestrator.register.v1.ClientR\x06client\"N\n" +
 	"\x12ConnectionResponse\x128\n" +
-	"\x06client\x18\x01 \x01(\v2 .orchestrator.register.v1.ClientR\x06client\"p\n" +
+	"\x06client\x18\x01 \x01(\v2 .orchestrator.register.v1.ClientR\x06client\"t\n" +
 	"\x19RegisterConnectionRequest\x12\x17\n" +
-	"\afrom_id\x18\x01 \x01(\x03R\x06fromId\x12:\n" +
-	"\x02to\x18\x02 \x03(\v2*.orchestrator.register.v1.ClientConnectionR\x02to\"\xd8\x01\n" +
+	"\afrom_id\x18\x01 \x01(\x03R\x06fromId\x12>\n" +
+	"\x02to\x18\x02 \x01(\v2..orchestrator.register.v1.ClientConnectionListR\x02to\"d\n" +
+	"\x14ClientConnectionList\x12L\n" +
+	"\vconnections\x18\x01 \x03(\v2*.orchestrator.register.v1.ClientConnectionR\vconnections\"\xd8\x01\n" +
 	"\x10ClientConnection\x12\x13\n" +
 	"\x05to_id\x18\x01 \x01(\x03R\x04toId\x12Z\n" +
 	"\n" +
@@ -553,7 +599,7 @@ func file_proto_orchestrator_v1_register_proto_rawDescGZIP() []byte {
 }
 
 var file_proto_orchestrator_v1_register_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_proto_orchestrator_v1_register_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_proto_orchestrator_v1_register_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_proto_orchestrator_v1_register_proto_goTypes = []any{
 	(MessageType)(0),                   // 0: orchestrator.register.v1.MessageType
 	(*Message)(nil),                    // 1: orchestrator.register.v1.Message
@@ -561,32 +607,34 @@ var file_proto_orchestrator_v1_register_proto_goTypes = []any{
 	(*ConnectionRequest)(nil),          // 3: orchestrator.register.v1.ConnectionRequest
 	(*ConnectionResponse)(nil),         // 4: orchestrator.register.v1.ConnectionResponse
 	(*RegisterConnectionRequest)(nil),  // 5: orchestrator.register.v1.RegisterConnectionRequest
-	(*ClientConnection)(nil),           // 6: orchestrator.register.v1.ClientConnection
-	(*RegisterConnectionResponse)(nil), // 7: orchestrator.register.v1.RegisterConnectionResponse
-	nil,                                // 8: orchestrator.register.v1.Message.AttributesEntry
-	nil,                                // 9: orchestrator.register.v1.ClientConnection.AttributesEntry
-	(*anypb.Any)(nil),                  // 10: google.protobuf.Any
+	(*ClientConnectionList)(nil),       // 6: orchestrator.register.v1.ClientConnectionList
+	(*ClientConnection)(nil),           // 7: orchestrator.register.v1.ClientConnection
+	(*RegisterConnectionResponse)(nil), // 8: orchestrator.register.v1.RegisterConnectionResponse
+	nil,                                // 9: orchestrator.register.v1.Message.AttributesEntry
+	nil,                                // 10: orchestrator.register.v1.ClientConnection.AttributesEntry
+	(*anypb.Any)(nil),                  // 11: google.protobuf.Any
 }
 var file_proto_orchestrator_v1_register_proto_depIdxs = []int32{
 	0,  // 0: orchestrator.register.v1.Message.messageType:type_name -> orchestrator.register.v1.MessageType
-	8,  // 1: orchestrator.register.v1.Message.attributes:type_name -> orchestrator.register.v1.Message.AttributesEntry
+	9,  // 1: orchestrator.register.v1.Message.attributes:type_name -> orchestrator.register.v1.Message.AttributesEntry
 	2,  // 2: orchestrator.register.v1.ConnectionRequest.client:type_name -> orchestrator.register.v1.Client
 	2,  // 3: orchestrator.register.v1.ConnectionResponse.client:type_name -> orchestrator.register.v1.Client
-	6,  // 4: orchestrator.register.v1.RegisterConnectionRequest.to:type_name -> orchestrator.register.v1.ClientConnection
-	9,  // 5: orchestrator.register.v1.ClientConnection.attributes:type_name -> orchestrator.register.v1.ClientConnection.AttributesEntry
-	10, // 6: orchestrator.register.v1.Message.AttributesEntry.value:type_name -> google.protobuf.Any
-	10, // 7: orchestrator.register.v1.ClientConnection.AttributesEntry.value:type_name -> google.protobuf.Any
-	3,  // 8: orchestrator.register.v1.Broadcast.ConnectClient:input_type -> orchestrator.register.v1.ConnectionRequest
-	1,  // 9: orchestrator.register.v1.Broadcast.ClientToClientMessage:input_type -> orchestrator.register.v1.Message
-	5,  // 10: orchestrator.register.v1.Broadcast.RegisterConnection:input_type -> orchestrator.register.v1.RegisterConnectionRequest
-	4,  // 11: orchestrator.register.v1.Broadcast.ConnectClient:output_type -> orchestrator.register.v1.ConnectionResponse
-	1,  // 12: orchestrator.register.v1.Broadcast.ClientToClientMessage:output_type -> orchestrator.register.v1.Message
-	7,  // 13: orchestrator.register.v1.Broadcast.RegisterConnection:output_type -> orchestrator.register.v1.RegisterConnectionResponse
-	11, // [11:14] is the sub-list for method output_type
-	8,  // [8:11] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	6,  // 4: orchestrator.register.v1.RegisterConnectionRequest.to:type_name -> orchestrator.register.v1.ClientConnectionList
+	7,  // 5: orchestrator.register.v1.ClientConnectionList.connections:type_name -> orchestrator.register.v1.ClientConnection
+	10, // 6: orchestrator.register.v1.ClientConnection.attributes:type_name -> orchestrator.register.v1.ClientConnection.AttributesEntry
+	11, // 7: orchestrator.register.v1.Message.AttributesEntry.value:type_name -> google.protobuf.Any
+	11, // 8: orchestrator.register.v1.ClientConnection.AttributesEntry.value:type_name -> google.protobuf.Any
+	3,  // 9: orchestrator.register.v1.Broadcast.ConnectClient:input_type -> orchestrator.register.v1.ConnectionRequest
+	1,  // 10: orchestrator.register.v1.Broadcast.ClientToClientMessage:input_type -> orchestrator.register.v1.Message
+	5,  // 11: orchestrator.register.v1.Broadcast.RegisterConnection:input_type -> orchestrator.register.v1.RegisterConnectionRequest
+	4,  // 12: orchestrator.register.v1.Broadcast.ConnectClient:output_type -> orchestrator.register.v1.ConnectionResponse
+	1,  // 13: orchestrator.register.v1.Broadcast.ClientToClientMessage:output_type -> orchestrator.register.v1.Message
+	8,  // 14: orchestrator.register.v1.Broadcast.RegisterConnection:output_type -> orchestrator.register.v1.RegisterConnectionResponse
+	12, // [12:15] is the sub-list for method output_type
+	9,  // [9:12] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_proto_orchestrator_v1_register_proto_init() }
@@ -601,7 +649,7 @@ func file_proto_orchestrator_v1_register_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_orchestrator_v1_register_proto_rawDesc), len(file_proto_orchestrator_v1_register_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   9,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

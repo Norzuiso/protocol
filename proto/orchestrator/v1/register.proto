@@ -62,9 +62,11 @@ message ConnectionResponse {
 
 message RegisterConnectionRequest {
     int64 from_id = 1;
-    repeated ClientConnection to = 2; 
+    ClientConnectionList to = 2; 
 }
-
+message ClientConnectionList {
+    repeated ClientConnection connections = 1;
+}
 message ClientConnection{
     int64 to_id = 1;
     map<string, google.protobuf.Any> attributes = 2;
