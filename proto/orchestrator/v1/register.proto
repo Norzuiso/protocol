@@ -40,7 +40,7 @@ message Message {
     int64 sender_id = 1;
     string content = 2;
     MessageType messageType = 3;
-    float epoch = 4;
+    int64 epoch = 4;
     map<string, google.protobuf.Any> attributes = 5;
     int64 seed = 6; 
 }
@@ -62,8 +62,14 @@ message ConnectionResponse {
 
 message RegisterConnectionRequest {
     int64 from_id = 1;
-    repeated int64 to_id = 2;
-    map<string, google.protobuf.Any> attributes = 3;
+    ClientConnectionList to = 2; 
+}
+message ClientConnectionList {
+    repeated ClientConnection connections = 1;
+}
+message ClientConnection{
+    int64 to_id = 1;
+    map<string, google.protobuf.Any> attributes = 2;
 }
 
 message RegisterConnectionResponse {
